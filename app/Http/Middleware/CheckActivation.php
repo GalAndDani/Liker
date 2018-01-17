@@ -21,6 +21,7 @@ class CheckActivation
         } else if(Auth::user()->verified == 1 && \Request::is('verified')) {
             return redirect()->route('home');
         }
+
         return $next($request);
     }
 }
