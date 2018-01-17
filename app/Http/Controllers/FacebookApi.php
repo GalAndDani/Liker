@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 class FacebookApi extends Controller
 {
     var $fb = '';
-    var $permissions = ['user_likes','user_posts'],
+    var $permissions = ['public_profile','user_likes','user_posts','publish_actions','user_photos'],
         $helper, $accessToken;
 
     public function __construct() {
@@ -30,13 +30,14 @@ class FacebookApi extends Controller
         $access_token = $this->helper->getAccessToken();
 
         if(empty($access_token)) {
-            echo "<a href='{$this->helper->getLoginUrl("http://localhost:8888/liker/public/test")}'>Login with Facebook </a>";
+//            echo "<a href='{$this->helper->getLoginUrl("http://localhost:8888/liker/public/test")}'>Login with Facebook </a>";
+            echo "<a href='{$this->helper->getLoginUrl("http://localhost/Liker/public/test")}'>Login with Facebook </a>";
         }
 
         if(isset($access_token)) {
             try {
-                $response = $this->fb->get('/2008908772469279/likes',$access_token);
-                $fb_user = $response->getGraphUser();
+                $response = $this->fb->get('/10203870897198086/likes',$access_token);
+                $fb_user = $response->getGraphEdge();
                 dd($fb_user);
                 //  var_dump($fb_user);
             } catch (\Facebook\Exceptions\FacebookResponseException $e) {
