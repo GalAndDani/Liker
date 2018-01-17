@@ -2,47 +2,49 @@
 
 namespace App\Http\Controllers;
 
-use Facebook\Facebook;
 use Illuminate\Http\Request;
 
 class FacebookApi extends Controller
 {
     var $fb = '';
+    var $permissions = ['user_likes','user_posts'],
+        $helper, $accessToken;
+
     public function __construct() {
         $this->middleware('auth');
-        $this->fb = new Facebook([
-            'app_id' => '962795670534191',
-            'app_secret' => 'db0e41ea01cb2a6e8a32b6f2fbcfa108',
+        $this->middleware('activation');
+
+        $this->fb = new \Facebook\Facebook([
+            'app_id' => '140541336639465',
+            'app_secret' => '0d563e073aa6dbf6837c9b2f73944ef9',
             'default_graph_version' => 'v2.11',
-            //'default_access_token' => '{access-token}', // optional
         ]);
+        $this->helper = $this->fb->getRedirectLoginHelper();
+        if (isset($_GET['state'])) {
+            $this->helper->getPersistentDataHandler()->set('state', $_GET['state']);
+        }
     }
 
     public function index() {
 
-//    Use one of the helper classes to get a Facebook\Authentication\AccessToken entity.
-//   $helper = $fb->getRedirectLoginHelper();
-//   $helper = $fb->getJavaScriptHelper();
-//   $helper = $fb->getCanvasHelper();
-//   $helper = $fb->getPageTabHelper();
+        $access_token = $this->helper->getAccessToken();
 
-        try {
-            // Get the \Facebook\GraphNodes\GraphUser object for the current user.
-            // If you provided a 'default_access_token', the '{access-token}' is optional.
-            $response = $this->fb->get('/me', '962795670534191|UvYnFoOrpKAmAHGRtR6NqZ8mcb4');
-        } catch(\Facebook\Exceptions\FacebookResponseException $e) {
-            // When Graph returns an error
-            echo 'Graph returned an error: ' . $e->getMessage();
-            exit;
-        } catch(\Facebook\Exceptions\FacebookSDKException $e) {
-            // When validation fails or other local issues
-            echo 'Facebook SDK returned an error: ' . $e->getMessage();
-            exit;
+        if(empty($access_token)) {
+            echo "<a href='{$this->helper->getLoginUrl("http://localhost:8888/liker/public/test")}'>Login with Facebook </a>";
         }
 
-        $me = $response->getGraphUser();
-        echo 'Logged in as ' . $me->getName();
+        if(isset($access_token)) {
+            try {
+                $response = $this->fb->get('/2008908772469279/likes',$access_token);
+                $fb_user = $response->getGraphUser();
+                dd($fb_user);
+                //  var_dump($fb_user);
+            } catch (\Facebook\Exceptions\FacebookResponseException $e) {
+                echo  'Graph returned an error: ' . $e->getMessage();
+            } catch (\Facebook\Exceptions\FacebookSDKException $e) {
+                // When validation fails or other local issues
+                echo 'Facebook SDK returned an error: ' . $e->getMessage();
+            }
+        }
     }
-
-
 }

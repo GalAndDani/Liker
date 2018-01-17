@@ -11,11 +11,13 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
+Route::get('/', 'HomeController@welcome')->name('welcome');
+Route::get('/home', 'HomeController@dashboard')->name('dashboard');
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/verifyemail/{token}', 'Auth\RegisterController@verify');
+// Email Verification
+Route::get('/verified', 'HomeController@verified')->name('verified.email');
+Route::get('/verify-email/{token}', 'Auth\RegisterController@verify');
+
+// Facebook API
+Route::get('/test', 'FacebookApi@index')->name('facebook.test');
