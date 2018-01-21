@@ -20,4 +20,7 @@ Route::get('/verified', 'HomeController@verified')->name('verified.email');
 Route::get('/verify-email/{token}', 'Auth\RegisterController@verify');
 
 // Facebook API
-Route::get('/test', 'FacebookApi@index')->name('facebook.test');
+Route::get('/login-fb', 'FacebookApi@index')->name('login-fb');
+Route::get('/test', function () {
+    return view('test');
+});
