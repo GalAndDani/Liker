@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Auth\Events\Registered;
@@ -40,7 +41,7 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('guest');
+        $this->middleware('guest')->except('verify');
     }
 
     /**
@@ -57,6 +58,10 @@ class RegisterController extends Controller
             'country'    => 'required|string|max:255',
             'email'      => 'required|string|email|max:255|unique:users',
             'password'   => 'required|string|min:6|confirmed',
+            'day'        => 'required',
+            'month'      => 'required',
+            'year'       => 'required',
+            'gender'     => 'required',
         ]);
     }
 
@@ -73,7 +78,10 @@ class RegisterController extends Controller
             'last_name'   => $data['last_name'],
             'country'     => $data['country'],
             'email'       => $data['email'],
+            'gender'      => $data['gender'],
+            'birthday'    => $data['year'] . '-' . $data['month'] . '-' . $data['day'],
             'ref_id'      => $this->generateRefId(),
+            'ref_user_id' => $data['ref_user_id'],
             'password'    => bcrypt($data['password']),
             'email_token' => base64_encode($data['email'])
         ]);
@@ -102,13 +110,25 @@ class RegisterController extends Controller
     public function verify($token)
     {
         $user = User::where('email_token', $token)->first();
-        $user->verified = 1;
+        if($user) {
+            $user->verified = 1;
+        }
+        if ($user->ref_user_id) {
+            $ref = User::where('ref_id', $user->ref_user_id)->first();
+            if($ref) {
+                $ref->points = $ref->points + 300;
+                $ref->save();
+            }
+        }
         if ($user->save()) {
             return view('email/emailconfirm', [ 'user' => $user ]);
+        } else {
+            dd('error');
         }
     }
 
-    public function generateRefId() {
+    public function generateRefId()
+    {
         do {
             $ref = Str::random(10);
         } while (User::where("ref_id", "=", $ref)->first() instanceof User);

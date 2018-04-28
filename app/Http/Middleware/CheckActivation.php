@@ -16,10 +16,10 @@ class CheckActivation
      */
     public function handle($request, Closure $next)
     {
-        if(Auth::user()->verified == 0 && !\Request::is('verified')) {
-            return redirect()->route('verified.email');
-        } else if(Auth::user()->verified == 1 && \Request::is('verified')) {
-            return redirect()->route('home');
+        if(Auth::user()->verified == 0 && !\Request::is('unverified')) {
+            return redirect()->route('unverified');
+        } else if(Auth::user()->verified == 1 && \Request::is('unverified')) {
+            return redirect()->route('dashboard');
         }
 
         return $next($request);

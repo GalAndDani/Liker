@@ -17,14 +17,20 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('gender');
             $table->string('email')->unique();
-            $table->string('country');
-            $table->string('ref_id')->unique();
-            $table->integer('points')->default(100);
             $table->string('password');
-            $table->tinyInteger('verified')->default(0);
+            $table->string('picture')->nullable();
+            $table->date('birthday')->nullable();
+            $table->string('country');
+            $table->integer('points')->default(100);
+            $table->string('ref_id')->unique();
+            $table->string('ref_user_id')->nullable();
             $table->string('email_token')->nullable();
+            $table->tinyInteger('verified')->default(0);
             $table->rememberToken();
+            $table->string('fb_user_id')->nullable();
+            $table->string('fb_user_token')->nullable();
             $table->timestamps();
         });
     }
